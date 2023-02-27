@@ -1,10 +1,12 @@
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { async } from "@firebase/util";
 import { string } from "yup";
+import { useWatch } from "react-hook-form";
+import { Post } from "./post";
 
-interface Post {
+export interface Post {
   id: string;
   userId: string;
   title: string;
@@ -24,6 +26,14 @@ export const Main = () => {
     );
   };
 
-  getPosts();
-  return <div>This is the home page</div>;
+  useEffect(() => {
+    getPosts();
+  }, []);
+  return (
+    <div>
+      {postsList?.map((post) => (
+        <Post />
+      ))}
+    </div>
+  );
 };
