@@ -32,7 +32,7 @@ export const Main = () => {
   return (
     <div>
       {postsList?.map((post) => (
-        <Post />
+        <Post post={post} />
       ))}
     </div>
   );
