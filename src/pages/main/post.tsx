@@ -1,6 +1,7 @@
 import { Post as IPost } from "./main";
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../config/firebase";
+import { addDoc, collection, query } from "firebase/firestore";
+import { auth, db } from "../../config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface Props {
   post: IPost;
@@ -8,19 +9,13 @@ interface Props {
 
 export const Post = (props: Props) => {
   const { post } = props;
+  const [user] = useAuthState(auth);
 
   const likesRef = collection(db, "likes");
 
-  const onCreatePost = async (data: createFormData) => {
-    await addDoc(postsRef, {
-      title: data.title,
-      description: data.description,
-      username: user?.displayName,
-      userId: user?.uid,
-    });
-    navigate("/");
+  const addLike = async () => {
+    await addDoc(likesRef, { userId: user?.uid, postId: post.id });
   };
-
 
   return (
     <div>
@@ -32,8 +27,7 @@ export const Post = (props: Props) => {
       </div>
       <div className="footer">
         <footer>@{post.username}</footer>
-        <button>&#x1F44D;
-</button>
+        <button onClick={addLike}>&#x1F44D;</button>
       </div>
     </div>
   );
