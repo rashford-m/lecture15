@@ -8,11 +8,15 @@ interface Props {
   post: IPost;
 }
 
+interface Like {
+  userId: string;
+}
+
 export const Post = (props: Props) => {
   const { post } = props;
   const [user] = useAuthState(auth);
 
-  const [likeAmount, setLikeAmount] = useState<number | null>(null);
+  const [likes, setLikes] = useState<Like[] | null>(null);
 
   const likesRef = collection(db, "likes");
 
@@ -20,12 +24,14 @@ export const Post = (props: Props) => {
 
   const getLikes = async () => {
     const data = await getDocs(likesDoc);
-    setLikeAmount(data.docs.length);
+    setLikes(data.docs.map((doc) => ({ userId: doc.data().userId })));
   };
 
   const addLike = async () => {
     await addDoc(likesRef, { userId: user?.uid, postId: post.id });
   };
+
+  const hasUserLike = likes?.find((like) => like.userId === user?.uid);
 
   useEffect(() => {
     getLikes();
@@ -41,8 +47,10 @@ export const Post = (props: Props) => {
       </div>
       <div className="footer">
         <footer>@{post.username}</footer>
-        <button onClick={addLike}>&#x1F44D;</button>
-        {likeAmount && <p>Likes: {likeAmount}</p>}
+        <button onClick={addLike}>
+          {hasUserLike ? <>&#x1F44E;</> : <>&#x1F44D;</>}
+        </button>
+        {likes && <p>Likes: {likes?.length}</p>}
       </div>
     </div>
   );
