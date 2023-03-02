@@ -1,5 +1,12 @@
 import { Post as IPost } from "./main";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
 import { auth, db } from "../../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
@@ -27,10 +34,19 @@ export const Post = (props: Props) => {
     setLikes(data.docs.map((doc) => ({ userId: doc.data().userId })));
   };
 
-  const addLike = async () => {
-    await addDoc(likesRef, { userId: user?.uid, postId: post.id });
+  const removeLike = async () => {
+    try {
+      const likesToDelete = doc(db, "likes");
+      await addDoc(likesRef, { userId: user?.uid, postId: post.id });
+      if (user) {
+        setLikes((prev) =>
+          prev ? [...prev, { userId: user?.uid }] : [{ userId: user.uid }]
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
-
   const hasUserLike = likes?.find((like) => like.userId === user?.uid);
 
   useEffect(() => {
