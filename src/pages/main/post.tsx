@@ -36,7 +36,14 @@ export const Post = (props: Props) => {
 
   const removeLike = async () => {
     try {
-      const likesToDelete = doc(db, "likes");
+      const likesToDelete = query(
+        likesRef,
+        where("postId", "==", "post.id"),
+        where("userId", "==", user?.uid)
+      );
+
+      const likeToDeleteData = await getDocs(likesToDeleteQuery);
+      const likesToDeleteQuery = doc(db, "likes", likeToDeleteData.docs);
       await addDoc(likesRef, { userId: user?.uid, postId: post.id });
       if (user) {
         setLikes((prev) =>
