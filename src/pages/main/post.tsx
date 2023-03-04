@@ -16,6 +16,7 @@ interface Props {
 }
 
 interface Like {
+  likeId: string;
   userId: string;
 }
 
@@ -31,7 +32,7 @@ export const Post = (props: Props) => {
 
   const getLikes = async () => {
     const data = await getDocs(likesDoc);
-    setLikes(data.docs.map((doc) => ({ userId: doc.data().userId })));
+    setLikes(data.docs.map((doc) => ({ userId: doc.data().userId, doc.id })));
   };
 
   const removeLike = async () => {
@@ -43,12 +44,11 @@ export const Post = (props: Props) => {
       );
 
       const likeToDeleteData = await getDocs(likesToDeleteQuery);
-      const likeToDelete = doc(db, "likes", likeToDeleteData.docs[0].id);
+      const likeId = doc(db, "likes", likeToDeleteData.docs[0].id);
+      const likeToDelete = doc(db, "likes", likeId);
       await deleteDoc(likeToDelete);
       if (user) {
-        setLikes((prev) =>
-          prev ? [...prev, { userId: user?.uid }] : [{ userId: user.uid }]
-        );
+        setLikes((prev) => prev?.filter((like) => like.Id === likeId));
       }
     } catch (err) {
       console.log(err);
