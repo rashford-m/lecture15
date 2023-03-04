@@ -43,8 +43,8 @@ export const Post = (props: Props) => {
       );
 
       const likeToDeleteData = await getDocs(likesToDeleteQuery);
-      const likesToDeleteQuery = doc(db, "likes", likeToDeleteData.docs);
-      await addDoc(likesRef, { userId: user?.uid, postId: post.id });
+      const likeToDelete = doc(db, "likes", likeToDeleteData.docs[0].id);
+      await deleteDoc(likeToDelete);
       if (user) {
         setLikes((prev) =>
           prev ? [...prev, { userId: user?.uid }] : [{ userId: user.uid }]
@@ -70,7 +70,7 @@ export const Post = (props: Props) => {
       </div>
       <div className="footer">
         <footer>@{post.username}</footer>
-        <button onClick={addLike}>
+        <button onClick={hasUserLike ? removeLike : addLike}>
           {hasUserLike ? <>&#x1F44E;</> : <>&#x1F44D;</>}
         </button>
         {likes && <p>Likes: {likes?.length}</p>}
